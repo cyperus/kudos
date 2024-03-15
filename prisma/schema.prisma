@@ -25,8 +25,10 @@ model User {
 }
 
 type Profile {
-  firstName String
-  lastName  String
+  firstName      String
+  lastName       String
+  department     Department @default(MARKETING)
+  profilePicture String?
 }
 
 enum Emoji {
@@ -61,7 +63,7 @@ model Kudo {
   message     String
   createAt    DateTime  @default(now())
   style       KudoStyle
-  author      User      @relation(references: [id], fields: [authorId], "AuthoredKudos")
+  author      User      @relation(references: [id], fields: [authorId], onDelete: Cascade, "AuthoredKudos")
   authorId    String    @db.ObjectId
   recipient   User      @relation(references: [id], fields: [recipientId], "RecievedKudos")
   recipientId String    @db.ObjectId

@@ -3,7 +3,7 @@ import { Outlet, useLoaderData } from '@remix-run/react';
 import { Profile, Kudo as IKudo, Prisma } from '@prisma/client';
 import { Layout } from '~/components/layout';
 import UserPanel from '~/components/user-panel';
-import { requireUserId } from '~/utils/auth.server';
+import { getUser, requireUserId } from '~/utils/auth.server';
 import { getOtherUses } from '~/utils/user.server';
 import { getFilteredKudos, getRecentKudos } from '~/utils/kudo.server';
 import Kudo from '~/components/kudo';
@@ -85,10 +85,11 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
   const kudos = await getFilteredKudos(userId, sortOptions, textFilter);
   const recentKudos = await getRecentKudos();
-  return json({ users, kudos, recentKudos });
+  const user = await getUser(request);
+  return json({ users, kudos, recentKudos, user });
 };
 export default function Home() {
-  const { users, kudos，recentKudos } = useLoaderData();
+  const { users, kudos, recentKudos, user } = useLoaderData();
 
   return (
     <Layout>
@@ -97,7 +98,7 @@ export default function Home() {
         <UserPanel users={users} />
         <div className="flex-1 flex flex-col">
           {/* Search bar goes here */}
-          <SearchBar />
+          <SearchBar profile={user.profile} />
           <div className="flex flex-1">
             <div className="w-full p-10 flex flex-col gap-y-4">
               {kudos.map((kudo: KudoWithProfile) => (
@@ -105,7 +106,7 @@ export default function Home() {
               ))}
             </div>
             {/* recent kudos goes here */}
-            <RecentBar kudos={recentKudos}/>
+            <RecentBar kudos={recentKudos} />
           </div>
         </div>
       </div>
